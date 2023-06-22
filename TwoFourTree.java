@@ -137,7 +137,7 @@ public class TwoFourTree {
     // should follow how its done in pwpnt.
     // Middle value moved to parent node, 
     // edge values become 2 new nodes with 1 value each
-    private void splitFourNode(TwoFourTreeItem fourNode) {
+    private TwoFourTreeItem splitFourNode(TwoFourTreeItem fourNode) {
 
         TwoFourTreeItem tmp = fourNode;
         TwoFourTreeItem parentNode;
@@ -157,9 +157,79 @@ public class TwoFourTree {
         } // Parent cannot reasonably be a four node or leaf node, so only should have to check these cases
         fourNode.parent.values++;
 
+        // prevent errors for now
+        return fourNode;
+
     }
 
-    private void mergeNode(TwoFourTreeItem node) {
+    private TwoFourTreeItem mergeNode(TwoFourTreeItem node) {
+
+        // prevent errors for now
+        return node;
+    }
+
+    private TwoFourTreeItem resize(TwoFourTreeItem node, int value) {
+
+        // determine by looking for the value in the node if it should be resized or not
+        boolean resizeDown = searchNodeForValue(value, node);
+        TwoFourTreeItem tmp = node;
+
+        if (node.isTwoNode()) {
+            if (resizeDown) {
+                node = null;
+                return null;
+            }
+            else {
+                node = new TwoFourTreeItem(tmp.value1, value);
+            }
+        }
+        else if (node.isThreeNode()) {
+            if (resizeDown) {
+                if (node.value1 == value) {
+                    node = new TwoFourTreeItem(tmp.value2);
+                }
+                else {
+                    node = new TwoFourTreeItem(tmp.value1);
+                }
+            }
+            else {
+                node = new TwoFourTreeItem(tmp.value1, tmp.value2, value);
+            }
+        }
+        // if node is a four node, it must be resized down
+        else {
+            if (!resizeDown) {
+                System.out.println("Not Good!");
+                return node;
+            }
+        }
+
+        node.parent = tmp.parent;
+        return node;
+
+    }
+
+    private TwoFourTreeItem search(TwoFourTreeItem currentNode, int key, boolean hasMerge, boolean hasSplit) {
+
+        // split if it is a four node and you are adding a node to the tree
+        if (hasSplit && currentNode.isFourNode()) {
+            currentNode = splitFourNode(currentNode);
+        }
+        // else merge if it is a two node and you are deleting a node
+        else if (hasMerge && currentNode.isTwoNode()) {
+            currentNode = mergeNode(currentNode);
+        }
+
+        // if value was found or current node is a leaf, return current node
+        if (searchNodeForValue(key, currentNode) || currentNode.isLeaf) return currentNode;
+
+        // otherwise, find children
+        TwoFourTreeItem child = closestChild(key, currentNode);
+        // if child exists, recurse
+        if (child != null) return search(child, key, hasMerge, hasSplit);
+        // otherwise closest node is current node, return it
+        else return currentNode;
+
 
     }
     
@@ -205,20 +275,44 @@ public class TwoFourTree {
             return false;
         }
 
-        TwoFourTreeItem searchNode = root;
-
+        TwoFourTreeItem searchNode = search(root, value, false, true);
         if (searchNodeForValue(value, searchNode)) return true;
+        if (searchNode.isTwoNode()) {
 
-        while (true) {
-
-            if (searchNode.isFourNode()) {
-                splitFourNode(searchNode);
-            }
-
-            if (searchNode.isLeaf) break;
+            // searchNode.values++;
+            // if (searchNode.value1 > value) {
+            //     searchNode.value2 = searchNode.value1;
+            //     searchNode.value1 = value;
+            //     // TODO: EVERYTHING HERE DOWN
+            //     // if (searchNode.leftChild != null && searchNodeForValue(value + 1, searchNode.leftChild)) {
+            //     //     searchNode.centerChild = searchNode.leftChild;
+            //     //
+            //     // }
+            // }
+            // else {
+            //     searchNode.value2 = value;
+            // }
+            
+            searchNode = resize(searchNode, value);
 
         }
+        else {
 
+            // searchNode.values++;
+            // if (searchNode.value1 > value) {
+            //     searchNode.value3 = searchNode.value2;
+            //     searchNode.value2 = searchNode.value1;
+            //     searchNode.value1 = value;
+            // }
+            // else if (value > searchNode.value2) {
+            //     searchNode.value3 = value;
+            // }
+            // else {
+            //     searchNode.value3 = searchNode.value2;
+            //     searchNode.value2 = value;
+            // }
+
+        }
         return false;
     }
 
@@ -226,31 +320,15 @@ public class TwoFourTree {
 
         if (root == null) return false;
 
-        TwoFourTreeItem searchNode = root;
-
-        while (true) {
-
-            if (searchNode == null) break;
-            if (searchNodeForValue(value, searchNode)) return true;
-            if (searchNode.isLeaf) break;
-
-            TwoFourTreeItem child = closestChild(value, searchNode);
-            if (child == null) {
-                //TODO: ADD VALUE TO NODE IF ITS CHILD IS NULL
-            }
-            
-            
-        }
+        TwoFourTreeItem searchNode = search(root, value, false, false);
+        if (searchNodeForValue(value, searchNode)) return true;
 
         return false;
     }
 
     public boolean deleteValue(int value) {
 
-        TwoFourTreeItem searchNode = root;
-        while (true) {
-            break;
-        }
+        TwoFourTreeItem searchNode = search(root, value, true, false);
         return false;
     }
 
