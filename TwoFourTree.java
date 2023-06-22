@@ -133,6 +133,10 @@ public class TwoFourTree {
 
     TwoFourTreeItem root = null;
 
+    private TwoFourTreeItem rehook(TwoFourTreeItem newNode, TwoFourTreeItem oldNode) {
+
+    }
+
     // This function should split a four node
     // should follow how its done in pwpnt.
     // Middle value moved to parent node, 
@@ -142,23 +146,120 @@ public class TwoFourTree {
         TwoFourTreeItem tmp = fourNode;
         TwoFourTreeItem parentNode;
 
-        if (root == fourNode) {
+        if (fourNode.isRoot()) {
             parentNode = new TwoFourTreeItem(fourNode.value2);
             root = parentNode;
         }
         else 
             parentNode = fourNode.parent;
 
-        if (fourNode.parent.isTwoNode()) {
+        if (parentNode.isTwoNode() && !parentNode.isRoot()) {
+            TwoFourTreeItem oldParent = parentNode;
+            parentNode = new TwoFourTreeItem(parentNode.value1, fourNode.value2);
+            parentNode.parent = oldParent.parent;
+            // TODO: REHOOK parents children
+            if (parentNode.parent.leftChild.value1 == oldParent.value1) {
+                parentNode.parent.leftChild = parentNode;
+            }
+            else if (parentNode.parent.rightChild.value1 == oldParent.value1) {
+                parentNode.parent.rightChild = parentNode;
+            }
+            else if (parentNode.parent.isTwoNode()) {
+                parentNode.parent.centerChild = parentNode;
+            }
+            else {
+                if (parentNode.parent.centerLeftChild.value1 == oldParent.value1) {
+                    parentNode.parent.centerLeftChild = parentNode;
+                }
+                else {
+                    parentNode.parent.centerRightChild = parentNode;
+                }
+            }
+
+            if (oldParent.value1 == parentNode.value1) {
+
+                parentNode.leftChild = oldParent.leftChild;
+                parentNode.leftChild.parent = parentNode;
+
+                parentNode.centerChild = new TwoFourTreeItem(fourNode.value1);
+                parentNode.rightChild = new TwoFourTreeItem(fourNode.value3);
+
+                parentNode.centerChild.leftChild = fourNode.leftChild;
+                parentNode.centerChild.rightChild = fourNode.centerLeftChild;
+                parentNode.centerChild.isLeaf = fourNode.isLeaf;
+                parentNode.centerChild.parent = parentNode;
+
+                parentNode.rightChild.leftChild = fourNode.centerRightChild;
+                parentNode.rightChild.rightChild = fourNode.rightChild;
+                parentNode.rightChild.isLeaf = fourNode.isLeaf;
+                parentNode.rightChild.parent = parentNode;
+
+            }
+            else {
+
+                parentNode.rightChild = oldParent.rightChild;
+                parentNode.rightChild.parent = parentNode;
+
+                parentNode.leftChild = new TwoFourTreeItem(fourNode.value1);
+                parentNode.centerChild = new TwoFourTreeItem(fourNode.value3);
+
+                parentNode.leftChild.leftChild = fourNode.leftChild;
+                parentNode.leftChild.rightChild = fourNode.centerLeftChild;
+                parentNode.leftChild.isLeaf = fourNode.isLeaf;
+                parentNode.leftChild.parent = parentNode;
+
+                parentNode.centerChild.leftChild = fourNode.centerRightChild;
+                parentNode.centerChild.rightChild = fourNode.rightChild;
+                parentNode.centerChild.isLeaf = fourNode.isLeaf;
+                parentNode.centerChild.parent = parentNode;
+
+            }
             // TODO: METHOD FOR ADDING MIDDLE VALUE TO PARENT
         } 
-        else if (fourNode.parent.isThreeNode()) {
+        else if (parentNode.isThreeNode()) {
+
+            TwoFourTreeItem oldParent = parentNode;
+            parentNode = new TwoFourTreeItem(parentNode.value1, fourNode.value2);
+            parentNode.parent = oldParent.parent;
+            // TODO: REHOOK parents children
+            if (parentNode.parent.leftChild.value1 == oldParent.value1) {
+                parentNode.parent.leftChild = parentNode;
+            }
+            else if (parentNode.parent.rightChild.value1 == oldParent.value1) {
+                parentNode.parent.rightChild = parentNode;
+            }
+            else if (parentNode.parent.isTwoNode()) {
+                parentNode.parent.centerChild = parentNode;
+            }
+            else {
+                if (parentNode.parent.centerLeftChild.value1 == oldParent.value1) {
+                    parentNode.parent.centerLeftChild = parentNode;
+                }
+                else {
+                    parentNode.parent.centerRightChild = parentNode;
+                }
+            }
             // TODO: METHOD FOR ADDING MIDDLE VALUE TO PARENT
         } // Parent cannot reasonably be a four node or leaf node, so only should have to check these cases
-        fourNode.parent.values++;
+        else {
+            // create new children of new parent root and rehook
+            parentNode.leftChild = new TwoFourTreeItem(fourNode.value1);
+            parentNode.rightChild = new TwoFourTreeItem(fourNode.value3);
+
+            parentNode.leftChild.leftChild = fourNode.leftChild;
+            parentNode.leftChild.rightChild = fourNode.centerLeftChild;
+            parentNode.leftChild.isLeaf = fourNode.isLeaf;
+            parentNode.leftChild.parent = parentNode;
+
+            parentNode.rightChild.leftChild = fourNode.centerRightChild;
+            parentNode.rightChild.rightChild = fourNode.rightChild;
+            parentNode.rightChild.isLeaf = fourNode.isLeaf;
+            parentNode.rightChild.parent = parentNode;
+
+        }
 
         // prevent errors for now
-        return fourNode;
+        return parentNode;
 
     }
 
@@ -173,6 +274,7 @@ public class TwoFourTree {
         // determine by looking for the value in the node if it should be resized or not
         boolean resizeDown = searchNodeForValue(value, node);
         TwoFourTreeItem tmp = node;
+        TwoFourTreeItem parent = node.parent;
 
         if (node.isTwoNode()) {
             if (resizeDown) {
@@ -201,6 +303,17 @@ public class TwoFourTree {
             if (!resizeDown) {
                 System.out.println("Not Good!");
                 return node;
+            }
+            else {
+                if (node.value1 == value) {
+                    node = new TwoFourTreeItem(tmp.value2, tmp.value3);
+                }
+                else if (node.value2 == value) {
+                    node = new TwoFourTreeItem(tmp.value1, tmp.value3);
+                }
+                else {
+                    node = new TwoFourTreeItem(tmp.value1, tmp.value2);
+                }
             }
         }
 
@@ -277,42 +390,43 @@ public class TwoFourTree {
 
         TwoFourTreeItem searchNode = search(root, value, false, true);
         if (searchNodeForValue(value, searchNode)) return true;
-        if (searchNode.isTwoNode()) {
-
-            // searchNode.values++;
-            // if (searchNode.value1 > value) {
-            //     searchNode.value2 = searchNode.value1;
-            //     searchNode.value1 = value;
-            //     // TODO: EVERYTHING HERE DOWN
-            //     // if (searchNode.leftChild != null && searchNodeForValue(value + 1, searchNode.leftChild)) {
-            //     //     searchNode.centerChild = searchNode.leftChild;
-            //     //
-            //     // }
-            // }
-            // else {
-            //     searchNode.value2 = value;
-            // }
-            
-            searchNode = resize(searchNode, value);
-
-        }
-        else {
-
-            // searchNode.values++;
-            // if (searchNode.value1 > value) {
-            //     searchNode.value3 = searchNode.value2;
-            //     searchNode.value2 = searchNode.value1;
-            //     searchNode.value1 = value;
-            // }
-            // else if (value > searchNode.value2) {
-            //     searchNode.value3 = value;
-            // }
-            // else {
-            //     searchNode.value3 = searchNode.value2;
-            //     searchNode.value2 = value;
-            // }
-
-        }
+        searchNode = resize(searchNode, value);
+        // if (searchNode.isTwoNode()) {
+        //
+        //     // searchNode.values++;
+        //     // if (searchNode.value1 > value) {
+        //     //     searchNode.value2 = searchNode.value1;
+        //     //     searchNode.value1 = value;
+        //     //     // TODO: EVERYTHING HERE DOWN
+        //     //     // if (searchNode.leftChild != null && searchNodeForValue(value + 1, searchNode.leftChild)) {
+        //     //     //     searchNode.centerChild = searchNode.leftChild;
+        //     //     //
+        //     //     // }
+        //     // }
+        //     // else {
+        //     //     searchNode.value2 = value;
+        //     // }
+        //     
+        //     // searchNode = resize(searchNode, value);
+        //
+        // }
+        // else {
+        //
+        //     // searchNode.values++;
+        //     // if (searchNode.value1 > value) {
+        //     //     searchNode.value3 = searchNode.value2;
+        //     //     searchNode.value2 = searchNode.value1;
+        //     //     searchNode.value1 = value;
+        //     // }
+        //     // else if (value > searchNode.value2) {
+        //     //     searchNode.value3 = value;
+        //     // }
+        //     // else {
+        //     //     searchNode.value3 = searchNode.value2;
+        //     //     searchNode.value2 = value;
+        //     // }
+        //
+        // }
         return false;
     }
 
