@@ -133,8 +133,46 @@ public class TwoFourTree {
 
     TwoFourTreeItem root = null;
 
+    // take a newly created node and add it into its spot in a tree
     private TwoFourTreeItem rehook(TwoFourTreeItem newNode, TwoFourTreeItem oldNode) {
-
+        if (!oldNode.isRoot()) {
+            // point to old parent
+            newNode.parent = oldNode.parent;
+            // have parent point to new child
+            if (newNode.parent.leftChild.value1 == oldNode.value1) {
+                newNode.parent.leftChild = newNode;
+            }
+            else if (newNode.parent.rightChild.value1 == oldNode.value1) {
+                newNode.parent.rightChild = newNode;
+            }
+            else if (newNode.parent.isThreeNode()) {
+                newNode.parent.centerChild = newNode;
+            }
+            else if (newNode.parent.centerLeftChild.value1 == oldNode.value1) {
+                newNode.parent.centerLeftChild = newNode;
+            }
+            else {
+                newNode.parent.centerRightChild = newNode;
+            }
+        }
+        if (!oldNode.isLeaf) {
+            newNode.isLeaf = false;
+            newNode.leftChild = oldNode.leftChild;
+            newNode.leftChild.parent = newNode;
+            newNode.rightChild = oldNode.rightChild;
+            newNode.rightChild.parent = newNode;
+            if (oldNode.isThreeNode()) {
+                newNode.centerChild = oldNode.centerChild;
+                newNode.centerChild.parent = newNode;
+            }
+            if (oldNode.isFourNode()) {
+                newNode.centerLeftChild = oldNode.centerLeftChild;
+                newNode.centerLeftChild.parent = newNode;
+                newNode.centerRightChild = oldNode.centerRightChild;
+                newNode.centerRightChild.parent = newNode;
+            }
+        }
+        return newNode;
     }
 
     // This function should split a four node
@@ -148,7 +186,22 @@ public class TwoFourTree {
 
         if (fourNode.isRoot()) {
             parentNode = new TwoFourTreeItem(fourNode.value2);
+            parentNode.leftChild = new TwoFourTreeItem(fourNode.value1);
+            parentNode.rightChild = new TwoFourTreeItem(fourNode.value3);
+            parentNode.isLeaf = false;
+
+            // parentNode.leftChild.leftChild = fourNode.leftChild;
+            // parentNode.leftChild.rightChild = fourNode.centerLeftChild;
+            // parentNode.leftChild.isLeaf = fourNode.isLeaf;
+            // parentNode.leftChild.parent = parentNode;
+            //
+            // parentNode.rightChild.leftChild = fourNode.centerRightChild;
+            // parentNode.rightChild.rightChild = fourNode.rightChild;
+            // parentNode.rightChild.isLeaf = fourNode.isLeaf;
+            // parentNode.rightChild.parent = parentNode;
+
             root = parentNode;
+            // return root;
         }
         else 
             parentNode = fourNode.parent;
@@ -265,6 +318,53 @@ public class TwoFourTree {
 
     private TwoFourTreeItem mergeNode(TwoFourTreeItem node) {
 
+        if (node.isRoot()) {
+            if (node.leftChild.isTwoNode() && node.rightChild.isTwoNode()) {
+
+                TwoFourTreeItem newNode = new TwoFourTreeItem(node.leftChild.value1, node.rightChild.value1, node.value1);
+                newNode.isLeaf = node.leftChild.isLeaf & node.rightChild.isLeaf;
+
+                newNode.leftChild = node.leftChild.leftChild;
+                if (newNode.leftChild != null) newNode.leftChild.parent = newNode;
+
+                newNode.centerLeftChild = node.leftChild.rightChild;
+                if (newNode.centerLeftChild != null) newNode.centerLeftChild.parent = newNode;
+
+                newNode.centerRightChild = node.rightChild.leftChild;
+                if (newNode.centerRightChild != null) newNode.centerRightChild.parent = newNode;
+
+                newNode.rightChild = node.rightChild.rightChild;
+                if (newNode.rightChild != null) newNode.rightChild.parent = newNode;
+
+                return newNode;
+
+            }
+            else {}
+        }
+        else {
+            if (node.parent.isTwoNode()) {
+                System.out.println("Two Node That was unmerged above!");
+                return node;
+            }
+            if (node.parent.isThreeNode()) {
+                if (node.parent.leftChild.value1 == node.value1) {
+
+                    if (node.parent.centerChild.isTwoNode() 
+                    && node.parent.rightChild.isTwoNode()) {
+
+                        TwoFourTreeItem newNode = new TwoFourTreeItem(  node.value1, 
+                                                                        node.parent.value1, 
+                                                                        node.parent.centerChild.value1);
+                        node.parent = resize(node.parent, node.parent.value1);
+
+                    }
+
+                }
+                else if (node.parent.centerChild.value1 == node.value1) {}
+                else {}
+            }
+            if (node.parent.isFourNode()) {}
+        }
         // prevent errors for now
         return node;
     }
@@ -317,7 +417,7 @@ public class TwoFourTree {
             }
         }
 
-        node.parent = tmp.parent;
+        node = rehook(node, tmp);
         return node;
 
     }
@@ -442,7 +542,12 @@ public class TwoFourTree {
 
     public boolean deleteValue(int value) {
 
+        if (root == null) return false;
+
         TwoFourTreeItem searchNode = search(root, value, true, false);
+        if (!searchNodeForValue(value, searchNode)) return false;
+        searchNode = resize(searchNode, value);
+
         return false;
     }
 
