@@ -98,6 +98,263 @@ public class TwoFourTree {
 
         }
 
+        private boolean searchNodeForValue(int value) {
+
+            if (this.value1 == value) return true;
+            else if (this.isThreeNode() && this.value2 == value) return true;
+            else if (this.isFourNode() && this.value3 == value) return true;
+            return false;
+
+        }
+
+        private void replaceChild(TwoFourTreeItem oldChild, TwoFourTreeItem newChild) {
+            if (leftChild.value1 == oldChild.value1) {
+                leftChild = newChild;
+            }
+            else if (rightChild.value1 == oldChild.value1) {
+                rightChild = newChild;
+            }
+            else if (isThreeNode()) {
+                centerChild = newChild;
+            }
+            else if (centerLeftChild.value1 == oldChild.value1) {
+                centerLeftChild = newChild;
+            }
+            else {
+                centerRightChild = newChild;
+            }
+        }
+
+        private TwoFourTreeItem moveUp(TwoFourTreeItem node) {
+
+            if (leftChild.value1 == node.value1) {
+                if (isTwoNode()) {
+                    append(node.value1);
+                    leftChild = node.leftChild;
+                    leftChild.parent = this;
+                    centerChild = node.rightChild;
+                    centerChild.parent = this;
+                }
+                else {
+                    append(node.value1);
+                    leftChild = node.leftChild;
+                    leftChild.parent = this;
+                    centerLeftChild = node.rightChild;
+                    centerLeftChild.parent = this;
+                    centerRightChild = centerChild;
+                    centerChild = null;
+                }
+            }
+            else if (rightChild.value1 == node.value1) {
+                if (isTwoNode()) {
+                    append(node.value1);
+                    centerChild = node.leftChild;
+                    centerChild.parent = this;
+                    rightChild = node.rightChild;
+                    rightChild.parent = this;
+                }
+                else {
+                    append(node.value1);
+                    centerRightChild = node.leftChild;
+                    centerRightChild.parent = this;
+                    rightChild = node.rightChild;
+                    rightChild.parent = this;
+                    centerLeftChild = centerChild;
+                    centerChild = null;
+                }
+            }
+            else {
+                append(node.value1);
+                centerLeftChild = node.leftChild;
+                centerLeftChild.parent = this;
+                centerRightChild = node.rightChild;
+                centerRightChild.parent = this;
+                centerChild = null;
+            }
+            return this;
+        }
+
+        // This function should split a four node
+        // should follow how its done in pwpnt.
+        // Middle value moved to parent node, 
+        // edge values become 2 new nodes with 1 value each
+        private TwoFourTreeItem splitFourNode() {
+            TwoFourTreeItem left = new TwoFourTreeItem(value1);
+            TwoFourTreeItem middle = new TwoFourTreeItem(value2);
+            TwoFourTreeItem right = new TwoFourTreeItem(value3);
+            middle.isLeaf = false;
+            middle.leftChild = left;
+            left.parent = middle;
+            middle.rightChild = right;
+            right.parent = middle;
+
+            if (!isLeaf) {
+
+                left.leftChild = leftChild;
+                leftChild.parent = left;
+                left.rightChild = centerLeftChild;
+                centerLeftChild.parent = left;
+                left.isLeaf = isLeaf;
+
+                right.leftChild = centerRightChild;
+                centerRightChild.parent = right;
+                right.rightChild = rightChild;
+                rightChild.parent = right;
+                right.isLeaf = isLeaf;
+
+            }
+
+            if (isRoot()) {
+                root = middle;
+                
+            }
+            else {
+                // merge middle into parent
+                middle.parent = parent;
+                parent.replaceChild(this, middle);
+                middle = parent.moveUp(middle);
+            }
+            return middle;
+        }
+
+        private void append(int value) {
+            if (isTwoNode()) {
+                if (value1 > value) {
+                    value2 = value1;
+                    value1 = value;
+                }
+                else {
+                    value2 = value;
+                }
+            }
+            else if (isThreeNode()) {
+                if (value > value2) {
+                    value3 = value;
+                }
+                else if (value > value1 && value != value2) {
+                    value3 = value2;
+                    value2 = value;
+                }
+                else if (value < value1) {
+                    value3 = value2;
+                    value2 = value1;
+                    value1 = value;
+                }
+                else {
+                    System.out.println("value is equal to an existing value");
+                }
+            }
+            else {
+                System.out.println("cannot append 4 node");
+            }
+            values++;
+        }
+
+        private TwoFourTreeItem resize(int value) {
+
+            // determine by looking for the value in the node if it should be resized or not
+            boolean resizeDown = searchNodeForValue(value);
+            TwoFourTreeItem tmp = this;
+            // TwoFourTreeItem parent = node.parent;
+            // System.out.println("IN resize!");
+
+            if (isTwoNode()) {
+                if (resizeDown) {
+
+                    if (isRoot()) {
+                        tmp = null;
+                        return null;
+                    }
+                    System.out.println("Unmerged Two node in delete value!");
+                    return this;
+                }
+                else {
+                    // System.out.println("Here!");
+                    // tmp = new TwoFourTreeItem(tmp.value1, value);
+                    this.append(value);
+                }
+            }
+            else if (isThreeNode()) {
+                if (resizeDown) {
+                    if (value1 == value) {
+                        tmp = new TwoFourTreeItem(tmp.value2);
+                    }
+                    else {
+                        tmp = new TwoFourTreeItem(tmp.value1);
+                    }
+                }
+                else {
+                    // tmp = new TwoFourTreeItem(tmp.value1, tmp.value2, value);
+                    this.append(value);
+                }
+            }
+            // if node is a four node, it must be resized down
+            else {
+                if (!resizeDown) {
+                    System.out.println("Not Good!");
+                    return this;
+                }
+                else {
+                    if (this.value1 == value) {
+                        tmp = new TwoFourTreeItem(tmp.value2, tmp.value3);
+                    }
+                    else if (this.value2 == value) {
+                        tmp = new TwoFourTreeItem(tmp.value1, tmp.value3);
+                    }
+                    else {
+                        tmp = new TwoFourTreeItem(tmp.value1, tmp.value2);
+                    }
+                }
+            }
+
+            this.rehook(tmp);
+            // System.out.println(tmp.value1 + " " + tmp.value2);
+            return tmp;
+
+        }
+        // take a newly created node and add it into its spot in a tree
+        // this method does not adjust for new node being a different size, that should be done in resize
+        private TwoFourTreeItem rehook(TwoFourTreeItem oldNode) {
+            if (!oldNode.isRoot()) {
+                // point to old parent
+                this.parent = oldNode.parent;
+                // have parent point to new child
+                if (this.parent.leftChild.value1 == oldNode.value1) {
+                    this.parent.leftChild = this;
+                }
+                else if (this.parent.rightChild.value1 == oldNode.value1) {
+                    this.parent.rightChild = this;
+                }
+                else if (this.parent.isThreeNode()) {
+                    this.parent.centerChild = this;
+                }
+                else if (this.parent.centerLeftChild.value1 == oldNode.value1) {
+                    this.parent.centerLeftChild = this;
+                }
+                else {
+                    this.parent.centerRightChild = this;
+                }
+            }
+            if (!oldNode.isLeaf) {
+                this.isLeaf = false;
+                this.leftChild = oldNode.leftChild;
+                this.leftChild.parent = this;
+                this.rightChild = oldNode.rightChild;
+                this.rightChild.parent = this;
+                if (oldNode.isThreeNode()) {
+                    this.centerChild = oldNode.centerChild;
+                    this.centerChild.parent = this;
+                }
+                if (oldNode.isFourNode()) {
+                    this.centerLeftChild = oldNode.centerLeftChild;
+                    this.centerLeftChild.parent = this;
+                    this.centerRightChild = oldNode.centerRightChild;
+                    this.centerRightChild.parent = this;
+                }
+            }
+            return this;
+        }
+
         private void printIndents(int indent) {
             for(int i = 0; i < indent; i++) System.out.printf("  ");
         }
@@ -133,189 +390,9 @@ public class TwoFourTree {
 
     TwoFourTreeItem root = null;
 
-    // take a newly created node and add it into its spot in a tree
-    // this method does not adjust for new node being a different size, that should be done in resize
-    private TwoFourTreeItem rehook(TwoFourTreeItem newNode, TwoFourTreeItem oldNode) {
-        if (!oldNode.isRoot()) {
-            // point to old parent
-            newNode.parent = oldNode.parent;
-            // have parent point to new child
-            if (newNode.parent.leftChild.value1 == oldNode.value1) {
-                newNode.parent.leftChild = newNode;
-            }
-            else if (newNode.parent.rightChild.value1 == oldNode.value1) {
-                newNode.parent.rightChild = newNode;
-            }
-            else if (newNode.parent.isThreeNode()) {
-                newNode.parent.centerChild = newNode;
-            }
-            else if (newNode.parent.centerLeftChild.value1 == oldNode.value1) {
-                newNode.parent.centerLeftChild = newNode;
-            }
-            else {
-                newNode.parent.centerRightChild = newNode;
-            }
-        }
-        if (!oldNode.isLeaf) {
-            newNode.isLeaf = false;
-            newNode.leftChild = oldNode.leftChild;
-            newNode.leftChild.parent = newNode;
-            newNode.rightChild = oldNode.rightChild;
-            newNode.rightChild.parent = newNode;
-            if (oldNode.isThreeNode()) {
-                newNode.centerChild = oldNode.centerChild;
-                newNode.centerChild.parent = newNode;
-            }
-            if (oldNode.isFourNode()) {
-                newNode.centerLeftChild = oldNode.centerLeftChild;
-                newNode.centerLeftChild.parent = newNode;
-                newNode.centerRightChild = oldNode.centerRightChild;
-                newNode.centerRightChild.parent = newNode;
-            }
-        }
-        return newNode;
-    }
 
-    // This function should split a four node
-    // should follow how its done in pwpnt.
-    // Middle value moved to parent node, 
-    // edge values become 2 new nodes with 1 value each
-    private TwoFourTreeItem splitFourNode(TwoFourTreeItem fourNode) {
 
-        TwoFourTreeItem tmp = fourNode;
-        TwoFourTreeItem parentNode;
 
-        if (fourNode.isRoot()) {
-            parentNode = new TwoFourTreeItem(fourNode.value2);
-            parentNode.leftChild = new TwoFourTreeItem(fourNode.value1);
-            parentNode.rightChild = new TwoFourTreeItem(fourNode.value3);
-            parentNode.isLeaf = false;
-
-            // parentNode.leftChild.leftChild = fourNode.leftChild;
-            // parentNode.leftChild.rightChild = fourNode.centerLeftChild;
-            // parentNode.leftChild.isLeaf = fourNode.isLeaf;
-            // parentNode.leftChild.parent = parentNode;
-            //
-            // parentNode.rightChild.leftChild = fourNode.centerRightChild;
-            // parentNode.rightChild.rightChild = fourNode.rightChild;
-            // parentNode.rightChild.isLeaf = fourNode.isLeaf;
-            // parentNode.rightChild.parent = parentNode;
-
-            root = parentNode;
-            // return root;
-        }
-        else 
-            parentNode = fourNode.parent;
-
-        if (parentNode.isTwoNode() && !parentNode.isRoot()) {
-            TwoFourTreeItem oldParent = parentNode;
-            parentNode = new TwoFourTreeItem(parentNode.value1, fourNode.value2);
-            parentNode.parent = oldParent.parent;
-            // TODO: REHOOK parents children
-            if (parentNode.parent.leftChild.value1 == oldParent.value1) {
-                parentNode.parent.leftChild = parentNode;
-            }
-            else if (parentNode.parent.rightChild.value1 == oldParent.value1) {
-                parentNode.parent.rightChild = parentNode;
-            }
-            else if (parentNode.parent.isTwoNode()) {
-                parentNode.parent.centerChild = parentNode;
-            }
-            else {
-                if (parentNode.parent.centerLeftChild.value1 == oldParent.value1) {
-                    parentNode.parent.centerLeftChild = parentNode;
-                }
-                else {
-                    parentNode.parent.centerRightChild = parentNode;
-                }
-            }
-
-            if (oldParent.value1 == parentNode.value1) {
-
-                parentNode.leftChild = oldParent.leftChild;
-                parentNode.leftChild.parent = parentNode;
-
-                parentNode.centerChild = new TwoFourTreeItem(fourNode.value1);
-                parentNode.rightChild = new TwoFourTreeItem(fourNode.value3);
-
-                parentNode.centerChild.leftChild = fourNode.leftChild;
-                parentNode.centerChild.rightChild = fourNode.centerLeftChild;
-                parentNode.centerChild.isLeaf = fourNode.isLeaf;
-                parentNode.centerChild.parent = parentNode;
-
-                parentNode.rightChild.leftChild = fourNode.centerRightChild;
-                parentNode.rightChild.rightChild = fourNode.rightChild;
-                parentNode.rightChild.isLeaf = fourNode.isLeaf;
-                parentNode.rightChild.parent = parentNode;
-
-            }
-            else {
-
-                parentNode.rightChild = oldParent.rightChild;
-                parentNode.rightChild.parent = parentNode;
-
-                parentNode.leftChild = new TwoFourTreeItem(fourNode.value1);
-                parentNode.centerChild = new TwoFourTreeItem(fourNode.value3);
-
-                parentNode.leftChild.leftChild = fourNode.leftChild;
-                parentNode.leftChild.rightChild = fourNode.centerLeftChild;
-                parentNode.leftChild.isLeaf = fourNode.isLeaf;
-                parentNode.leftChild.parent = parentNode;
-
-                parentNode.centerChild.leftChild = fourNode.centerRightChild;
-                parentNode.centerChild.rightChild = fourNode.rightChild;
-                parentNode.centerChild.isLeaf = fourNode.isLeaf;
-                parentNode.centerChild.parent = parentNode;
-
-            }
-            // TODO: METHOD FOR ADDING MIDDLE VALUE TO PARENT
-        } 
-        else if (parentNode.isThreeNode()) {
-
-            TwoFourTreeItem oldParent = parentNode;
-            parentNode = new TwoFourTreeItem(parentNode.value1, fourNode.value2);
-            parentNode.parent = oldParent.parent;
-            // TODO: REHOOK parents children
-            if (parentNode.parent.leftChild.value1 == oldParent.value1) {
-                parentNode.parent.leftChild = parentNode;
-            }
-            else if (parentNode.parent.rightChild.value1 == oldParent.value1) {
-                parentNode.parent.rightChild = parentNode;
-            }
-            else if (parentNode.parent.isTwoNode()) {
-                parentNode.parent.centerChild = parentNode;
-            }
-            else {
-                if (parentNode.parent.centerLeftChild.value1 == oldParent.value1) {
-                    parentNode.parent.centerLeftChild = parentNode;
-                }
-                else {
-                    parentNode.parent.centerRightChild = parentNode;
-                }
-            }
-            // TODO: METHOD FOR ADDING MIDDLE VALUE TO PARENT
-        } // Parent cannot reasonably be a four node or leaf node, so only should have to check these cases
-        else {
-            // create new children of new parent root and rehook
-            parentNode.leftChild = new TwoFourTreeItem(fourNode.value1);
-            parentNode.rightChild = new TwoFourTreeItem(fourNode.value3);
-
-            parentNode.leftChild.leftChild = fourNode.leftChild;
-            parentNode.leftChild.rightChild = fourNode.centerLeftChild;
-            parentNode.leftChild.isLeaf = fourNode.isLeaf;
-            parentNode.leftChild.parent = parentNode;
-
-            parentNode.rightChild.leftChild = fourNode.centerRightChild;
-            parentNode.rightChild.rightChild = fourNode.rightChild;
-            parentNode.rightChild.isLeaf = fourNode.isLeaf;
-            parentNode.rightChild.parent = parentNode;
-
-        }
-
-        // prevent errors for now
-        return parentNode;
-
-    }
 
     private int whichChild(TwoFourTreeItem node) {
 
@@ -337,9 +414,9 @@ public class TwoFourTree {
             if (childFlag == 1) {
                 if (node.parent.isThreeNode()) {
                     if (node.parent.centerChild.isTwoNode()) {
-                        node = resize(node, node.parent.value1);
-                        node = resize(node, node.parent.centerChild.value1);
-                        node.parent = resize(node.parent, node.parent.value1);
+                        node.resize(node.parent.value1);
+                        node.resize(node.parent.centerChild.value1);
+                        node.parent.resize(node.parent.value1);
                         if (!node.parent.centerChild.isLeaf) {//TODO: THIS IF NECESSARY: SHOULD NOT BE NECESSARY
                                                               }
                         else {
@@ -348,19 +425,19 @@ public class TwoFourTree {
 
                     }
                     else {
-                        node = resize(node, node.parent.value1);
-                        node.parent = resize(node.parent, node.parent.centerChild.value1);
-                        node.parent.centerChild = resize(node.parent.centerChild, node.parent.centerChild.value1);
+                        node.resize(node.parent.value1);
+                        node.parent.resize(node.parent.centerChild.value1);
+                        node.parent.centerChild.resize(node.parent.centerChild.value1);
                         if (!node.parent.centerChild.isLeaf) {}
                     }
                 }
             }
-            if (childFlag == 2) {}
-            if (childFlag == 3) {}
-            if (childFlag == 4) {}
-            if (childFlag == 5) {}
+            else if (childFlag == 2) {}
+            else if (childFlag == 3) {}
+            else if (childFlag == 4) {}
+            else if (childFlag == 5) {}
             else {
-                System.out.println("Error: parent not found to contain child.");
+                // System.out.println("Error: parent not found to contain child.");
                 return node;
             }
         }
@@ -416,69 +493,14 @@ public class TwoFourTree {
         return node;
     }
 
-    private TwoFourTreeItem resize(TwoFourTreeItem node, int value) {
 
-        // determine by looking for the value in the node if it should be resized or not
-        boolean resizeDown = searchNodeForValue(value, node);
-        TwoFourTreeItem tmp = node;
-        TwoFourTreeItem parent = node.parent;
-
-        if (node.isTwoNode()) {
-            if (resizeDown) {
-
-                if (node.isRoot()) {
-                    node = null;
-                    return null;
-                }
-                System.out.println("Unmerged Two node in delete value!");
-                return node;
-            }
-            else {
-                node = new TwoFourTreeItem(tmp.value1, value);
-            }
-        }
-        else if (node.isThreeNode()) {
-            if (resizeDown) {
-                if (node.value1 == value) {
-                    node = new TwoFourTreeItem(tmp.value2);
-                }
-                else {
-                    node = new TwoFourTreeItem(tmp.value1);
-                }
-            }
-            else {
-                node = new TwoFourTreeItem(tmp.value1, tmp.value2, value);
-            }
-        }
-        // if node is a four node, it must be resized down
-        else {
-            if (!resizeDown) {
-                System.out.println("Not Good!");
-                return node;
-            }
-            else {
-                if (node.value1 == value) {
-                    node = new TwoFourTreeItem(tmp.value2, tmp.value3);
-                }
-                else if (node.value2 == value) {
-                    node = new TwoFourTreeItem(tmp.value1, tmp.value3);
-                }
-                else {
-                    node = new TwoFourTreeItem(tmp.value1, tmp.value2);
-                }
-            }
-        }
-
-        node = rehook(node, tmp);
-        return node;
-
-    }
 
     private TwoFourTreeItem search(TwoFourTreeItem currentNode, int key, boolean hasMerge, boolean hasSplit) {
 
         // split if it is a four node and you are adding a node to the tree
         if (hasSplit && currentNode.isFourNode()) {
-            currentNode = splitFourNode(currentNode);
+            // System.out.println("Split called!");
+            currentNode = currentNode.splitFourNode();
         }
         // else merge if it is a two node and you are deleting a node
         else if (hasMerge && currentNode.isTwoNode()) {
@@ -486,26 +508,21 @@ public class TwoFourTree {
         }
 
         // if value was found or current node is a leaf, return current node
-        if (searchNodeForValue(key, currentNode) || currentNode.isLeaf) return currentNode;
+        if (currentNode.searchNodeForValue(key) || currentNode.isLeaf) return currentNode;
 
+        // System.out.println("Leaf not found!");
         // otherwise, find children
         TwoFourTreeItem child = closestChild(key, currentNode);
         // if child exists, recurse
         if (child != null) return search(child, key, hasMerge, hasSplit);
         // otherwise closest node is current node, return it
+        // (should never occur since leaf will return)
         else return currentNode;
 
 
     }
     
-    private boolean searchNodeForValue(int value, TwoFourTreeItem node) {
 
-        if (node.value1 == value) return true;
-        else if (node.isThreeNode() && node.value2 == value) return true;
-        else if (node.isFourNode() && node.value3 == value) return true;
-        return false;
-
-    }
 
     private TwoFourTreeItem closestChild (int value, TwoFourTreeItem node) {
 
@@ -536,13 +553,15 @@ public class TwoFourTree {
 
         // case where tree is empty
         if (root == null) {
+            // System.out.println("Adding Root!");
             root = new TwoFourTreeItem(value);
             return false;
         }
 
+        // System.out.println("Initiating search!");
         TwoFourTreeItem searchNode = search(root, value, false, true);
-        if (searchNodeForValue(value, searchNode)) return true;
-        searchNode = resize(searchNode, value);
+        if (searchNode.searchNodeForValue(value)) return true;
+        searchNode = searchNode.resize(value);
         // if (searchNode.isTwoNode()) {
         //
         //     // searchNode.values++;
@@ -587,7 +606,7 @@ public class TwoFourTree {
         if (root == null) return false;
 
         TwoFourTreeItem searchNode = search(root, value, false, false);
-        if (searchNodeForValue(value, searchNode)) return true;
+        if (searchNode.searchNodeForValue(value)) return true;
 
         return false;
     }
@@ -597,10 +616,10 @@ public class TwoFourTree {
         if (root == null) return false;
 
         TwoFourTreeItem searchNode = search(root, value, true, false);
-        if (!searchNodeForValue(value, searchNode)) return false;
+        if (!searchNode.searchNodeForValue(value)) return false;
         if (searchNode.isLeaf) {
 
-            searchNode = resize(searchNode, value);
+            searchNode.resize(value);
 
             return true;
 
@@ -628,7 +647,7 @@ public class TwoFourTree {
                 leftmostRight = search(searchNode.rightChild, value, false, false);
             }
             searchNode.value1 = leftmostRight.value1;
-            leftmostRight = resize(leftmostRight, leftmostRight.value1);
+            leftmostRight.resize(leftmostRight.value1);
 
             return true;
         }
