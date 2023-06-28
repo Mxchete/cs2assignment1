@@ -100,9 +100,9 @@ public class TwoFourTree {
 
         private boolean searchNodeForValue(int value) {
 
-            if (this.value1 == value) return true;
-            else if (this.isThreeNode() && this.value2 == value) return true;
-            else if (this.isFourNode() && this.value3 == value) return true;
+            if (value1 == value) return true;
+            else if (isThreeNode() || isFourNode() && this.value2 == value) return true;
+            else if (isFourNode() && value3 == value) return true;
             return false;
 
         }
@@ -125,51 +125,117 @@ public class TwoFourTree {
             }
         }
 
+        // TODO: WORKING HERE NOW
+        private void fuse(TwoFourTreeItem sibling) {
+            // if (value1 == parent.leftChild.value1) {
+            //     if (parent.isThreeNode()) {
+            //         append(parent.value1);
+            //         parent.resize(parent.value1);
+            //         append(parent.centerChild.value1);
+            //         parent.centerChild = null;
+            //     }
+            // }
+            // else if (value1 == parent.rightChild.value1) {
+            //     rightChild = newChild;
+            // }
+            // else if (isThreeNode()) {
+            //     centerChild = newChild;
+            // }
+            // else if (value1 == parent.centerLeftChild.value1) {
+            //     centerLeftChild = newChild;
+            // }
+            // else {
+            //     centerRightChild = newChild;
+            // }
+            int parentVal = -1;
+            if (parent.isThreeNode()) {
+                if (parent.leftChild.value1 == value1 
+                    || parent.leftChild.value1 == sibling.value1 
+                    && parent.centerChild.value1 == value1) {
+                    parentVal = parent.value1;
+                }
+                else {
+                    parentVal = parent.value2;
+                }
+            }
+            else {
+                if (parent.leftChild.value1 == value1 
+                    || parent.leftChild.value1 == sibling.value1 
+                    && parent.centerLeftChild.value1 == value1) {
+                    parentVal = parent.value1;
+                    }
+                else if (parent.centerLeftChild.value1 == value1 
+                        || parent.centerRightChild.value1 == value1 
+                        && parent.rightChild.value1 != sibling.value1) {
+                    parentVal = parent.value2;
+                }
+                else {
+                    parentVal = parent.value3;
+                }
+            }
+            if (parentVal != -1) parent = parent.resize(parentVal);
+            TwoFourTreeItem fusedNode = new TwoFourTreeItem(parentVal, value1, sibling.value1);
+            if (parent.isTwoNode()) {
+            }
+        }
+
+        private TwoFourTreeItem rotate(sibling) {}
+
         private TwoFourTreeItem moveUp(TwoFourTreeItem node) {
 
             if (leftChild.value1 == node.value1) {
                 if (isTwoNode()) {
                     append(node.value1);
-                    leftChild = node.leftChild;
-                    leftChild.parent = this;
-                    centerChild = node.rightChild;
-                    centerChild.parent = this;
+                    if (!node.isLeaf) {
+                        leftChild = node.leftChild;
+                        leftChild.parent = this;
+                        centerChild = node.rightChild;
+                        centerChild.parent = this;
+                    }
                 }
                 else {
                     append(node.value1);
-                    leftChild = node.leftChild;
-                    leftChild.parent = this;
-                    centerLeftChild = node.rightChild;
-                    centerLeftChild.parent = this;
-                    centerRightChild = centerChild;
-                    centerChild = null;
+                    if (!node.isLeaf) {
+                        leftChild = node.leftChild;
+                        leftChild.parent = this;
+                        centerLeftChild = node.rightChild;
+                        centerLeftChild.parent = this;
+                        centerRightChild = centerChild;
+                        centerChild = null;
+                    }
                 }
             }
             else if (rightChild.value1 == node.value1) {
                 if (isTwoNode()) {
                     append(node.value1);
-                    centerChild = node.leftChild;
-                    centerChild.parent = this;
-                    rightChild = node.rightChild;
-                    rightChild.parent = this;
+                    if (!node.isLeaf) {
+                        centerChild = node.leftChild;
+                        centerChild.parent = this;
+                        rightChild = node.rightChild;
+                        rightChild.parent = this;
+                    }
                 }
                 else {
                     append(node.value1);
-                    centerRightChild = node.leftChild;
-                    centerRightChild.parent = this;
-                    rightChild = node.rightChild;
-                    rightChild.parent = this;
-                    centerLeftChild = centerChild;
-                    centerChild = null;
+                    if (!node.isLeaf) {
+                        centerRightChild = node.leftChild;
+                        centerRightChild.parent = this;
+                        rightChild = node.rightChild;
+                        rightChild.parent = this;
+                        centerLeftChild = centerChild;
+                        centerChild = null;
+                    }
                 }
             }
             else {
                 append(node.value1);
-                centerLeftChild = node.leftChild;
-                centerLeftChild.parent = this;
-                centerRightChild = node.rightChild;
-                centerRightChild.parent = this;
-                centerChild = null;
+                if (!node.isLeaf) {
+                    centerLeftChild = node.leftChild;
+                    centerLeftChild.parent = this;
+                    centerRightChild = node.rightChild;
+                    centerRightChild.parent = this;
+                    centerChild = null;
+                }
             }
             return this;
         }
@@ -248,6 +314,43 @@ public class TwoFourTree {
                 System.out.println("cannot append 4 node");
             }
             values++;
+        }
+
+        // TODO: FINISH THIS CLUSTERFUCK
+        private TwoFourTreeItem findSibling() {
+            // if (value1 != parent.leftChild.value1 && !parent.leftChild.isTwoNode()) {
+            //     if (parent.isThreeNode() && value1 != parent.centerChild.value1) return parent.centerChild;
+            //     else if (parent.isFourNode() && value1 == parent.centerLeftChild.value1) return parent.leftChild;
+            // }
+            // if (value1 != parent.rightChild.value1 && !parent.rightChild.isTwoNode()) {
+            //     if (parent.isThreeNode() && value1 != parent.centerChild.value1) return parent.centerChild;
+            //     else if (parent.isFourNode() && value1 == parent.centerRightChild.value1) return parent.rightChild;
+            // }
+            // if (parent.isThreeNode() && value1 != parent.centerChild.value1 && !parent.centerChild.isTwoNode()) {
+            //     return parent.centerChild;
+            // }
+            // if (value1 != parent.centerLeftChild.value1 && !parent.centerLeftChild.isTwoNode()) {
+            //     if (value1 != parent.centerRightChild.value1 && !parent.centerRightChild.isTwoNode())
+            //         return parent.centerLeftChild;
+            // }
+            // if (value1 != parent.centerRightChild.value1 && !parent.centerRightChild.isTwoNode()) {
+            //     return parent.centerRightChild;
+            // }
+            TwoFourTreeItem sibling = null;
+            if (value1 != parent.leftChild.value1 && !parent.leftChild.isTwoNode()) {
+                if (value1 > parent.leftChild.value1) sibling = parent.leftChild; }
+            if (value1 != parent.rightChild.value1 && !parent.rightChild.isTwoNode()) {
+                if (value1 < parent.leftChild.value1) sibling = parent.rightChild; }
+            if (parent.isThreeNode() && value1 != parent.centerChild.value1 && !parent.centerChild.isTwoNode()) {
+                sibling = parent.centerChild; }
+            else if (parent.isFourNode()) {
+                
+                if (value1 != parent.centerLeftChild.value1 && !parent.centerLeftChild.isTwoNode()) {
+                    if (value1 < parent.rightChild.value1) sibling = parent.centerLeftChild; }
+                if (value1 != parent.centerRightChild.value1 && !parent.centerRightChild.isTwoNode()) {
+                    if (value1 > parent.leftChild.value1) sibling = parent.centerRightChild; }
+            }
+            return sibling;
         }
 
         private TwoFourTreeItem resize(int value) {
@@ -409,39 +512,69 @@ public class TwoFourTree {
     //TODO: WTF IS THIS?
     private TwoFourTreeItem mergeNode(TwoFourTreeItem node) {
 
-        if (node.isLeaf) {
-            int childFlag = whichChild(node);
-            if (childFlag == 1) {
-                if (node.parent.isThreeNode()) {
-                    if (node.parent.centerChild.isTwoNode()) {
-                        node.resize(node.parent.value1);
-                        node.resize(node.parent.centerChild.value1);
-                        node.parent.resize(node.parent.value1);
-                        if (!node.parent.centerChild.isLeaf) {//TODO: THIS IF NECESSARY: SHOULD NOT BE NECESSARY
-                                                              }
-                        else {
-                            node.parent.centerChild = null;
-                        }
+        if (node.isRoot() && !node.isLeaf) {
+            if (node.leftChild.isTwoNode() && node.rightChild.isTwoNode()) {
+                
+                node.isLeaf = node.leftChild.isLeaf & node.rightChild.isLeaf;
+                node = node.moveUp(node.leftChild);
+                node = node.moveUp(node.rightChild);
 
-                    }
-                    else {
-                        node.resize(node.parent.value1);
-                        node.parent.resize(node.parent.centerChild.value1);
-                        node.parent.centerChild.resize(node.parent.centerChild.value1);
-                        if (!node.parent.centerChild.isLeaf) {}
-                    }
-                }
             }
-            else if (childFlag == 2) {}
-            else if (childFlag == 3) {}
-            else if (childFlag == 4) {}
-            else if (childFlag == 5) {}
             else {
-                // System.out.println("Error: parent not found to contain child.");
                 return node;
             }
         }
-        if (node.leftChild.isTwoNode() && node.rightChild.isTwoNode()) {}
+        else if (!node.isLeaf) {
+            TwoFourTreeItem sibling = node.findSibling();
+            if (sibling.isTwoNode()) {
+                node = node.fuse(sibling);
+            }
+            else {
+                node = node.rotate(sibling);
+            }
+            }
+            // case where non 2-node sibling exists
+            else {}
+        // if (node.isLeaf) {
+        //     int childFlag = whichChild(node);
+        //     if (childFlag == 1) {
+        //         if (node.parent.isThreeNode()) {
+        //             if (node.parent.centerChild.isTwoNode()) {
+        //                 node.resize(node.parent.value1);
+        //                 node.resize(node.parent.centerChild.value1);
+        //                 node.parent.resize(node.parent.value1);
+        //                 if (!node.parent.centerChild.isLeaf) {//TODO: THIS IF NECESSARY: SHOULD NOT BE NECESSARY
+        //                                                       }
+        //                 else {
+        //                     node.parent.centerChild = null;
+        //                 }
+        //
+        //             }
+        //             else {
+        //                 node.resize(node.parent.value1);
+        //                 node.parent.resize(node.parent.centerChild.value1);
+        //                 node.parent.centerChild.resize(node.parent.centerChild.value1);
+        //                 if (!node.parent.centerChild.isLeaf) {}
+        //             }
+        //         }
+        //     }
+        //     else if (childFlag == 2) {}
+        //     else if (childFlag == 3) {}
+        //     else if (childFlag == 4) {}
+        //     else if (childFlag == 5) {}
+        //     else {
+        //         // System.out.println("Error: parent not found to contain child.");
+        //         return node;
+        //     }
+        // }
+        // else if (node.leftChild.isTwoNode() && node.rightChild.isTwoNode() && !node.isRoot()) {
+        //     node.isLeaf = node.leftChild.isLeaf & node.rightChild.isLeaf;
+        //     node = node.moveUp(node.leftChild);
+        //     node = node.moveUp(node.rightChild);
+        // }
+        // else {
+        //
+        // }
         // if (node.isRoot()) {
         //     if (node.leftChild.isTwoNode() && node.rightChild.isTwoNode()) {
         //
@@ -547,7 +680,6 @@ public class TwoFourTree {
 
     }
 
-    // TODO: FINISH THIS METHOD
     // returns true if value already exists
     public boolean addValue(int value) {
 
@@ -562,42 +694,6 @@ public class TwoFourTree {
         TwoFourTreeItem searchNode = search(root, value, false, true);
         if (searchNode.searchNodeForValue(value)) return true;
         searchNode = searchNode.resize(value);
-        // if (searchNode.isTwoNode()) {
-        //
-        //     // searchNode.values++;
-        //     // if (searchNode.value1 > value) {
-        //     //     searchNode.value2 = searchNode.value1;
-        //     //     searchNode.value1 = value;
-        //     //     // TODO: EVERYTHING HERE DOWN
-        //     //     // if (searchNode.leftChild != null && searchNodeForValue(value + 1, searchNode.leftChild)) {
-        //     //     //     searchNode.centerChild = searchNode.leftChild;
-        //     //     //
-        //     //     // }
-        //     // }
-        //     // else {
-        //     //     searchNode.value2 = value;
-        //     // }
-        //     
-        //     // searchNode = resize(searchNode, value);
-        //
-        // }
-        // else {
-        //
-        //     // searchNode.values++;
-        //     // if (searchNode.value1 > value) {
-        //     //     searchNode.value3 = searchNode.value2;
-        //     //     searchNode.value2 = searchNode.value1;
-        //     //     searchNode.value1 = value;
-        //     // }
-        //     // else if (value > searchNode.value2) {
-        //     //     searchNode.value3 = value;
-        //     // }
-        //     // else {
-        //     //     searchNode.value3 = searchNode.value2;
-        //     //     searchNode.value2 = value;
-        //     // }
-        //
-        // }
         return false;
     }
 
@@ -619,6 +715,7 @@ public class TwoFourTree {
         if (!searchNode.searchNodeForValue(value)) return false;
         if (searchNode.isLeaf) {
 
+            System.out.println("Sono qui. Il node e' una leaf.");
             searchNode.resize(value);
 
             return true;
@@ -627,24 +724,25 @@ public class TwoFourTree {
         else {
             // find leftmost right node
             TwoFourTreeItem leftmostRight;
+            // System.out.println("Il node non e' una leaf.");
             if (searchNode.value1 == value) {
                 if (searchNode.isThreeNode()) {
-                    leftmostRight = search(searchNode.centerChild, value, false, false);
+                    leftmostRight = search(searchNode.centerChild, value, true, false);
                 }
                 else {
-                    leftmostRight = search(searchNode.centerLeftChild, value, false, false);
+                    leftmostRight = search(searchNode.centerLeftChild, value, true, false);
                 }
             }
             else if (searchNode.value2 == value) {
                 if (searchNode.isThreeNode()) {
-                    leftmostRight = search(searchNode.rightChild, value, false, false);
+                    leftmostRight = search(searchNode.rightChild, value, true, false);
                 }
                 else {
-                    leftmostRight = search(searchNode.centerRightChild, value, false, false);
+                    leftmostRight = search(searchNode.centerRightChild, value, true, false);
                 }
             }
             else {
-                leftmostRight = search(searchNode.rightChild, value, false, false);
+                leftmostRight = search(searchNode.rightChild, value, true, false);
             }
             searchNode.value1 = leftmostRight.value1;
             leftmostRight.resize(leftmostRight.value1);

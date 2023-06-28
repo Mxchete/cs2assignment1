@@ -27,3 +27,9 @@ replay_pid*
 *.java~
 *.swp
 *.un~
+
+# testing files
+*.txt
+App.java
+Appuno.java
+harness_fixed.java
