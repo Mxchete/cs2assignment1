@@ -101,8 +101,10 @@ public class TwoFourTree {
         private boolean searchNodeForValue(int value) {
 
             if (this.value1 == value) return true;
-            else if (this.isThreeNode() && this.value2 == value) return true;
-            else if (this.isFourNode() && this.value3 == value) return true;
+            // else if (this.isThreeNode() && this.value2 == value) return true;
+            // else if (this.isFourNode() && this.value3 == value) return true;
+            else if (this.value2 == value) return true;
+            else if (this.value3 == value) return true;
             return false;
 
         }
@@ -728,11 +730,11 @@ public class TwoFourTree {
 
         if (currentNode == null) {
             
-            System.out.println(root.isTwoNode());
-            System.out.println(root.isThreeNode());
-            System.out.println(root.isFourNode());
-            System.out.println(root.searchNodeForValue(key));
-            root.printInOrder(0);
+            // System.out.println(root.isTwoNode());
+            // System.out.println(root.isThreeNode());
+            // System.out.println(root.isFourNode());
+            // System.out.println(root.searchNodeForValue(key));
+            // root.printInOrder(0);
             return root;
         }
         // System.out.println("in search" + currentNode.value1);
@@ -870,28 +872,52 @@ public class TwoFourTree {
             // find leftmost right node
             TwoFourTreeItem leftmostRight;
             if (searchNode.isRoot()) {
-                leftmostRight = search(searchNode.rightChild, value, true, false);
+                leftmostRight = search(searchNode.rightChild, value - 1, true, false);
             }
             else if (searchNode.value1 == value) {
                 if (searchNode.isThreeNode()) {
-                    leftmostRight = search(searchNode.centerChild, value, true, false);
+                    leftmostRight = search(searchNode.centerChild, value - 1, true, false);
                 }
                 else {
-                    leftmostRight = search(searchNode.centerLeftChild, value, true, false);
+                    leftmostRight = search(searchNode.centerLeftChild, value - 1, true, false);
                 }
             }
             else if (searchNode.value2 == value) {
                 if (searchNode.isThreeNode()) {
-                    leftmostRight = search(searchNode.rightChild, value, true, false);
+                    leftmostRight = search(searchNode.rightChild, value - 1, true, false);
                 }
                 else {
-                    leftmostRight = search(searchNode.centerRightChild, value, true, false);
+                    leftmostRight = search(searchNode.centerRightChild, value - 1, true, false);
                 }
             }
             else {
-                leftmostRight = search(searchNode.rightChild, value, true, false);
+                leftmostRight = search(searchNode.rightChild, value - 1, true, false);
             }
-            searchNode.value1 = leftmostRight.value1;
+            // searchNode.value1 = leftmostRight.value1;
+            
+            // System.out.println("leftmostRight node returned: " + leftmostRight.value1+" "+leftmostRight.value2+" "+leftmostRight.value3);
+            // System.out.println("leftchild?: " + (leftmostRight.leftChild == null));
+            // System.out.println("centerleftchild?: " + (leftmostRight.centerLeftChild == null));
+            // System.out.println("centerchild?: " + (leftmostRight.centerChild == null));
+            // System.out.println("centerRightchild?: " + (leftmostRight.centerRightChild == null));
+            // System.out.println("rightchild?: " + (leftmostRight.rightChild == null));
+            // System.out.println("isleaf?: " + (leftmostRight.isLeaf));
+            if (leftmostRight.searchNodeForValue(value)) {
+                // System.out.println("value to delete " + value + " was moved into leftmost right");
+                leftmostRight.remove(value);
+                leftmostRight.ensureLeafiness();
+                return true;
+            }
+            if (searchNode.value1 == value) searchNode.value1 = leftmostRight.value1;
+            else if (searchNode.value2 == value) searchNode.value2 = leftmostRight.value1;
+            else if (searchNode.value3 == value) searchNode.value3 = leftmostRight.value1;
+            else {
+                searchNode = search(searchNode, value, false, false);
+                if (searchNode.value1 == value) searchNode.value1 = leftmostRight.value1;
+                else if (searchNode.value2 == value) searchNode.value2 = leftmostRight.value1;
+                else if (searchNode.value3 == value) searchNode.value3 = leftmostRight.value1;
+            }
+            // searchnode was moved when moving down to find leftmost right
             leftmostRight.remove(leftmostRight.value1);
 
             return true;
