@@ -142,7 +142,6 @@ public class TwoFourTree {
          *
          * **********DONT FORGET TO CHECK BEFORE YOU TEST
          * */
-        // after testing - fuse is not working
         private TwoFourTreeItem fuse(TwoFourTreeItem sibling) {
             // TwoFourTreeItem newNode;
             // System.out.println("In fuse for node:" + value1);
@@ -153,7 +152,7 @@ public class TwoFourTree {
                 parent.remove(parent.value1);
                 // parent.leftChild = newNode;
                 parent.leftChild = this;
-                if (parent.isThreeNode()) {
+                if (parent.isTwoNode()) {
                     parent.centerChild = null;
                 }
                 else {
@@ -167,6 +166,7 @@ public class TwoFourTree {
 
                 if (parent.isThreeNode()) {
                     // newNode = new TwoFourTreeItem(value1, parent.value2, sibling.value1);
+                    // System.out.println("threeNode parent: " + parent.value1+" "+parent.value2);
                     append(parent.value2);
                     append(sibling.value1);
                     parent.remove(parent.value2);
@@ -174,6 +174,7 @@ public class TwoFourTree {
                 }
                 else {
                     // newNode = new TwoFourTreeItem(value1, parent.value3, sibling.value1);
+                    // System.out.println("fourNode parent: " + parent.value1+" "+parent.value2+" "+parent.value3);
                     append(parent.value3);
                     append(sibling.value1);
                     parent.remove(parent.value3);
@@ -183,6 +184,9 @@ public class TwoFourTree {
                 }
                 // parent.rightChild = newNode;
                 parent.rightChild = this;
+                // System.out.println("after fuse: " + parent.isTwoNode());
+                // System.out.println(parent.isThreeNode());
+                // System.out.println(parent.centerChild == null);
             }
             else {
                 // newNode = new TwoFourTreeItem(value1, parent.value2, sibling.value1);
@@ -722,6 +726,16 @@ public class TwoFourTree {
 
     private TwoFourTreeItem search(TwoFourTreeItem currentNode, int key, boolean hasMerge, boolean hasSplit) {
 
+        if (currentNode == null) {
+            
+            System.out.println(root.isTwoNode());
+            System.out.println(root.isThreeNode());
+            System.out.println(root.isFourNode());
+            System.out.println(root.searchNodeForValue(key));
+            root.printInOrder(0);
+            return root;
+        }
+        // System.out.println("in search" + currentNode.value1);
         currentNode.ensureLeafiness();
         // split if it is a four node and you are adding a node to the tree
         if (hasSplit && currentNode.isFourNode()) {
@@ -739,6 +753,7 @@ public class TwoFourTree {
         // System.out.println("Leaf not found!");
         // otherwise, find children
         TwoFourTreeItem child = closestChild(key, currentNode);
+        // System.out.println("child: " + child == null);
         // if child exists, recurse
         if (child != null) return search(child, key, hasMerge, hasSplit);
         // otherwise closest node is current node, return it
@@ -841,7 +856,7 @@ public class TwoFourTree {
 
         if (root == null) return false;
 
-        System.out.println("Deleting");
+        // System.out.println("Deleting" + value);
         TwoFourTreeItem searchNode = search(root, value, true, false);
         if (!searchNode.searchNodeForValue(value)) return false;
         if (searchNode.isLeaf) {
@@ -854,7 +869,10 @@ public class TwoFourTree {
         else {
             // find leftmost right node
             TwoFourTreeItem leftmostRight;
-            if (searchNode.value1 == value) {
+            if (searchNode.isRoot()) {
+                leftmostRight = search(searchNode.rightChild, value, true, false);
+            }
+            else if (searchNode.value1 == value) {
                 if (searchNode.isThreeNode()) {
                     leftmostRight = search(searchNode.centerChild, value, true, false);
                 }
