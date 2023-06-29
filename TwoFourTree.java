@@ -142,12 +142,17 @@ public class TwoFourTree {
          *
          * **********DONT FORGET TO CHECK BEFORE YOU TEST
          * */
+        // after testing - fuse is not working
         private TwoFourTreeItem fuse(TwoFourTreeItem sibling) {
-            TwoFourTreeItem newNode;
+            // TwoFourTreeItem newNode;
+            // System.out.println("In fuse for node:" + value1);
             if (parent.leftChild.value1 == value1 || parent.leftChild.value1 == sibling.value1) { 
-                newNode = new TwoFourTreeItem(value1, parent.value1, sibling.value1);
+                // newNode = new TwoFourTreeItem(value1, parent.value1, sibling.value1);
+                append(parent.value1);
+                append(sibling.value1);
                 parent.remove(parent.value1);
-                parent.leftChild = newNode;
+                // parent.leftChild = newNode;
+                parent.leftChild = this;
                 if (parent.isThreeNode()) {
                     parent.centerChild = null;
                 }
@@ -161,59 +166,78 @@ public class TwoFourTree {
 
 
                 if (parent.isThreeNode()) {
-                    newNode = new TwoFourTreeItem(value1, parent.value2, sibling.value1);
+                    // newNode = new TwoFourTreeItem(value1, parent.value2, sibling.value1);
+                    append(parent.value2);
+                    append(sibling.value1);
                     parent.remove(parent.value2);
                     parent.centerChild = null;
                 }
                 else {
-                    newNode = new TwoFourTreeItem(value1, parent.value3, sibling.value1);
+                    // newNode = new TwoFourTreeItem(value1, parent.value3, sibling.value1);
+                    append(parent.value3);
+                    append(sibling.value1);
                     parent.remove(parent.value3);
                     parent.centerRightChild = null;
                     parent.centerChild = parent.centerLeftChild;
                     parent.centerLeftChild = null;
                 }
-                parent.rightChild = newNode;
+                // parent.rightChild = newNode;
+                parent.rightChild = this;
             }
             else {
-                newNode = new TwoFourTreeItem(value1, parent.value2, sibling.value1);
+                // newNode = new TwoFourTreeItem(value1, parent.value2, sibling.value1);
+                append(parent.value2);
+                append(sibling.value1);
                 parent.remove(parent.value2);
                 parent.centerRightChild = null;
-                parent.centerChild = newNode;
+                // parent.centerChild = newNode;
+                parent.centerChild = this;
                 parent.centerLeftChild = null;
             }
-            newNode.isLeaf = isLeaf;
-            newNode.parent = parent;
+            // newNode.isLeaf = isLeaf;
+            // newNode.parent = parent;
             if (!isLeaf) {
                 if (sibling.value1 > value1) {
-                    sibling.leftChild = newNode.centerRightChild;
-                    sibling.leftChild.parent = newNode;
-                    sibling.rightChild = newNode.rightChild;
-                    sibling.rightChild.parent = newNode;
+                    // sibling.leftChild = newNode.centerRightChild;
+                    // sibling.leftChild.parent = newNode;
+                    // sibling.rightChild = newNode.rightChild;
+                    // sibling.rightChild.parent = newNode;
 
-                    leftChild = newNode.leftChild;
-                    leftChild.parent = newNode;
-                    rightChild = newNode.centerLeftChild;
-                    rightChild.parent = newNode;
+                    centerLeftChild = rightChild;
+
+                    centerRightChild = sibling.leftChild;
+                    sibling.leftChild.parent = this;
+                    rightChild = sibling.rightChild;
+                    sibling.rightChild.parent = this;
                 }
                 else {
-                    sibling.leftChild = newNode.leftChild;
-                    sibling.leftChild.parent = newNode;
-                    sibling.rightChild = newNode.centerLeftChild;
-                    sibling.rightChild.parent = newNode;
+                    // sibling.leftChild = newNode.leftChild;
+                    // sibling.leftChild.parent = newNode;
+                    // sibling.rightChild = newNode.centerLeftChild;
+                    // sibling.rightChild.parent = newNode;
+                    //
+                    // leftChild = newNode.centerRightChild;
+                    // leftChild.parent = newNode;
+                    // rightChild = newNode.rightChild;
+                    // rightChild.parent = newNode;
+                    centerRightChild = leftChild;
 
-                    leftChild = newNode.centerRightChild;
-                    leftChild.parent = newNode;
-                    rightChild = newNode.rightChild;
-                    rightChild.parent = newNode;
+                    centerLeftChild = sibling.rightChild;
+                    sibling.rightChild.parent = this;
+                    leftChild = sibling.leftChild;
+                    sibling.leftChild.parent = this;
+
                 }
             }
-            return newNode;
+            // System.out.println(value1 + " " + value2 + " " + value3);
+            // return newNode;
+            return this;
         }
 
         // this node is a two node but sibling and parent are not
         private TwoFourTreeItem rotate(TwoFourTreeItem sibling) {
-            System.out.println(value1 + " " + sibling.value1);
-            System.out.println(isLeaf + " " + sibling.isLeaf);
+            // System.out.println(value1 + " " + sibling.value1);
+            // System.out.println(isLeaf + " " + sibling.isLeaf);
             if (parent.leftChild.value1 == value1) { 
                 this.append(parent.value1);
                 parent.remove(parent.value1);
@@ -284,8 +308,8 @@ public class TwoFourTree {
             }
             // ensureLeafiness();
             // sibling.ensureLeafiness();
-            System.out.println(value1 + " " + sibling.value1);
-            System.out.println(isLeaf + " " + sibling.isLeaf);
+            // System.out.println(value1 + " " + sibling.value1);
+            // System.out.println(isLeaf + " " + sibling.isLeaf);
             if (!isLeaf) {
                 if (sibling.value1 > value1) {
                     centerChild = rightChild;
@@ -666,7 +690,7 @@ public class TwoFourTree {
     //TODO: WTF IS THIS?
     private TwoFourTreeItem mergeNode(TwoFourTreeItem node) {
 
-        System.out.println("In merge for " + node.value1);
+        // System.out.println("In merge for " + node.value1);
         if (node.isRoot() && !node.isLeaf) {
             if (node.leftChild.isTwoNode() && node.rightChild.isTwoNode()) {
                 
@@ -679,7 +703,8 @@ public class TwoFourTree {
                 return node;
             }
         }
-        else if (!node.isLeaf) {
+        // else if (!node.isLeaf) {
+        else {
             TwoFourTreeItem sibling = node.findSibling();
             if (sibling.isTwoNode()) {
                 node = node.fuse(sibling);
@@ -689,7 +714,7 @@ public class TwoFourTree {
             }
             }
             // case where non 2-node sibling exists
-            else {}
+            // else {}
         // prevent errors for now
         return node;
     }
@@ -762,7 +787,7 @@ public class TwoFourTree {
         // System.out.println("Initiating search!");
         TwoFourTreeItem searchNode = search(root, value, false, true);
         if (searchNode.searchNodeForValue(value)) return true;
-        searchNode = searchNode.resize(value);
+        searchNode.append(value);
         // if (searchNode.isTwoNode()) {
         //
         //     // searchNode.values++;
@@ -816,6 +841,7 @@ public class TwoFourTree {
 
         if (root == null) return false;
 
+        System.out.println("Deleting");
         TwoFourTreeItem searchNode = search(root, value, true, false);
         if (!searchNode.searchNodeForValue(value)) return false;
         if (searchNode.isLeaf) {
