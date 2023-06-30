@@ -1,9 +1,7 @@
 /*******************************
  * TODO:
- * Create split function
- * Finish add value function 
- * Finish has value function 
- * Finish delete value function 
+ * FIX BUG CAUSED BY VALUE NOT BEING DELETED
+ * FINISH TESTING
  ******************************/
 import java.util.Arrays;
 
@@ -270,7 +268,7 @@ public class TwoFourTree {
                 }
                 else {
                     this.append(parent.value3);
-                    parent.remove(parent.value2);
+                    parent.remove(parent.value3);
                 }
                 if (sibling.isThreeNode()) {
                     parent.append(sibling.value2);
@@ -498,7 +496,22 @@ public class TwoFourTree {
         // TODO: FINISH THIS CLUSTERFUCK
         private TwoFourTreeItem findSibling() {
             TwoFourTreeItem sibling;
-            if (parent.isThreeNode()) {
+            // System.out.println("Parent info: " + parent.value1 +" "+parent.value2+" "+parent.value3);
+            // System.out.println("leftchild?: " + (parent.leftChild == null));
+            // System.out.println("centerleftchild?: " + (parent.centerLeftChild == null));
+            // System.out.println("centerchild?: " + (parent.centerChild == null));
+            // System.out.println("centerRightchild?: " + (parent.centerRightChild == null));
+            // System.out.println("rightchild?: " + (parent.rightChild == null));
+            // System.out.println("isleaf?: " + (parent.isLeaf));
+            if (parent.isRoot() && parent.isTwoNode()) {
+                if (parent.leftChild.value1 == value1) {
+                    sibling = parent.rightChild;
+                }
+                else {
+                    sibling = parent.leftChild;
+                }
+            }
+            else if (parent.isThreeNode()) {
                 if (parent.centerChild.value1 == value1) {
                     sibling = parent.leftChild;
                     if (!parent.rightChild.isTwoNode()) sibling = parent.rightChild;
