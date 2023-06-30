@@ -445,7 +445,10 @@ public class TwoFourTree {
         }
 
         private void append(int value) {
-            if (isTwoNode()) {
+            if (values == 0) {
+                value1 = value;
+            }
+            else if (isTwoNode()) {
                 if (value1 > value) {
                     value2 = value1;
                     value1 = value;
@@ -469,10 +472,13 @@ public class TwoFourTree {
                 }
                 else {
                     System.out.println("value is equal to an existing value");
+                    return;
                 }
             }
             else {
                 System.out.println("cannot append 4 node");
+                // System.out.println(value+" to "+value1+" "+value2+" "+value3);
+                return;
             }
             values++;
         }
@@ -496,6 +502,7 @@ public class TwoFourTree {
         // TODO: FINISH THIS CLUSTERFUCK
         private TwoFourTreeItem findSibling() {
             TwoFourTreeItem sibling;
+            // System.out.println("Finding Sibling for: " + value1);
             // System.out.println("Parent info: " + parent.value1 +" "+parent.value2+" "+parent.value3);
             // System.out.println("leftchild?: " + (parent.leftChild == null));
             // System.out.println("centerleftchild?: " + (parent.centerLeftChild == null));
@@ -503,6 +510,7 @@ public class TwoFourTree {
             // System.out.println("centerRightchild?: " + (parent.centerRightChild == null));
             // System.out.println("rightchild?: " + (parent.rightChild == null));
             // System.out.println("isleaf?: " + (parent.isLeaf));
+            // System.out.println("values#?: " + parent.values);
             if (parent.isRoot() && parent.isTwoNode()) {
                 if (parent.leftChild.value1 == value1) {
                     sibling = parent.rightChild;
