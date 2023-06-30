@@ -502,6 +502,7 @@ public class TwoFourTree {
         // TODO: FINISH THIS CLUSTERFUCK
         private TwoFourTreeItem findSibling() {
             TwoFourTreeItem sibling;
+            // if (value1 == 31562790) {
             // System.out.println("Finding Sibling for: " + value1);
             // System.out.println("Parent info: " + parent.value1 +" "+parent.value2+" "+parent.value3);
             // System.out.println("leftchild?: " + (parent.leftChild == null));
@@ -510,7 +511,15 @@ public class TwoFourTree {
             // System.out.println("centerRightchild?: " + (parent.centerRightChild == null));
             // System.out.println("rightchild?: " + (parent.rightChild == null));
             // System.out.println("isleaf?: " + (parent.isLeaf));
-            // System.out.println("values#?: " + parent.values);
+            // System.out.println("values#?: " + parent.values); 
+            // System.out.println("Node info: " + value1 +" "+value2+" "+value3);
+            // System.out.println("leftchild?: " + (leftChild == null));
+            // System.out.println("centerleftchild?: " + (centerLeftChild == null));
+            // System.out.println("centerchild?: " + (centerChild == null));
+            // System.out.println("centerRightchild?: " + (centerRightChild == null));
+            // System.out.println("rightchild?: " + (rightChild == null));
+            // System.out.println("isleaf?: " + (isLeaf));
+            // System.out.println("values#?: " + values); }
             if (parent.isRoot() && parent.isTwoNode()) {
                 if (parent.leftChild.value1 == value1) {
                     sibling = parent.rightChild;
@@ -916,17 +925,25 @@ public class TwoFourTree {
             }
             // searchNode.value1 = leftmostRight.value1;
             
+            // if (value == 31562790) {
             // System.out.println("leftmostRight node returned: " + leftmostRight.value1+" "+leftmostRight.value2+" "+leftmostRight.value3);
             // System.out.println("leftchild?: " + (leftmostRight.leftChild == null));
             // System.out.println("centerleftchild?: " + (leftmostRight.centerLeftChild == null));
             // System.out.println("centerchild?: " + (leftmostRight.centerChild == null));
             // System.out.println("centerRightchild?: " + (leftmostRight.centerRightChild == null));
             // System.out.println("rightchild?: " + (leftmostRight.rightChild == null));
-            // System.out.println("isleaf?: " + (leftmostRight.isLeaf));
+            // System.out.println("isleaf?: " + (leftmostRight.isLeaf)); }
             if (leftmostRight.searchNodeForValue(value)) {
                 // System.out.println("value to delete " + value + " was moved into leftmost right");
                 leftmostRight.remove(value);
-                leftmostRight.ensureLeafiness();
+                if (leftmostRight.isTwoNode()) leftmostRight = mergeNode(leftmostRight);
+                leftmostRight.remove(value);
+                // leftmostRight.ensureLeafiness();
+                // if (value == 31562790) {
+                //     System.out.println("Should be removing value now");
+                //     System.out.println(leftmostRight.searchNodeForValue(value));
+                //     System.out.println(leftmostRight.parent.searchNodeForValue(value));
+                // }
                 return true;
             }
             if (searchNode.value1 == value) searchNode.value1 = leftmostRight.value1;
