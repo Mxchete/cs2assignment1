@@ -8,6 +8,7 @@
 
 # CURRENT TEST CASE OUTPUT
 ## for random test cases at least
+```
 CASE:      100 integers,       20 finds,       10 removals.  Generating...
   TwoFourTree add:       0ms  find:       0ms  del:       0ms  (        9 missing) find:      0ms  (Should be         9 missing)
   TreeSet     add:       0ms  find:       0ms  del:       0ms  (        9 missing) find:      1ms  (Should be         9 missing)
@@ -73,3 +74,4 @@ Failed to delete 475170943
 Failed to delete 483596413
 del:     414ms  (1,570,975 missing) find:    267ms  (Should be   905,936 missing)
   TreeSet     add:   2,536ms  find:     381ms  del:     231ms  (  905,936 missing) find:    401ms  (Should be   905,936 missing)
+```
